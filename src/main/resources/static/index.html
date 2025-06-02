@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Validador de Secuencia de Llaves</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 1rem;
+            padding: 0.7rem;
+            width: 100%;
+            font-size: 1.1rem;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .resultado {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .valido {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .invalido {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Validador de Secuencia de Llaves</h1>
+
+<div class="container">
+    <label for="sequenceInput">Ingrese la secuencia de llaves:</label>
+    <input type="text" id="sequenceInput" placeholder="Ejemplo: {}{{}}" />
+    <button onclick="validarSecuencia()">Validar</button>
+
+    <div id="resultado" class="resultado" style="display:none;"></div>
+</div>
+
+<script>
+    async function validarSecuencia() {
+        const input = document.getElementById('sequenceInput').value.trim();
+        const resultadoDiv = document.getElementById('resultado');
+
+        if (input === "") {
+            resultadoDiv.style.display = 'block';
+            resultadoDiv.className = 'resultado invalido';
+            resultadoDiv.textContent = 'Por favor, ingrese una secuencia.';
+            return;
+        }
+
+        try {
+            // Aquí debes poner la URL de tu API, ejemplo localhost:8080/api/validar
+            const response = await fetch('/api/validar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sequence: input })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error en la llamada a la API');
+            }
+
+            const data = await response.json();
+
+            if (data.valid) {
+                resultadoDiv.className = 'resultado valido';
+                resultadoDiv.textContent = 'Secuencia válida: todas las llaves están correctamente balanceadas.';
+            } else {
+                resultadoDiv.className = 'resultado invalido';
+                resultadoDiv.textContent = 'Secuencia inválida: las llaves no están balanceadas.';
+            }
+            resultadoDiv.style.display = 'block';
+
+        } catch (error) {
+            resultadoDiv.style.display = 'block';
+            resultadoDiv.className = 'resultado invalido';
+            resultadoDiv.textContent = 'Error al validar la secuencia: ' + error.message;
+        }
+    }
+</script>
+
+</body>
+</html>
